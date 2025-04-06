@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "AuthService\\AuthService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "JobService\\JobService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Application&ChatService\\Application&ChatService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "NotificationService\\NotificationService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ModeratorService\\ModeratorService.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
