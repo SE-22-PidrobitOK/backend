@@ -44,6 +44,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddScoped<JwtTokenService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -56,9 +58,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Middleware
 app.UseHttpsRedirection();
-app.UseAuthentication(); 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
