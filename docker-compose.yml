@@ -1,4 +1,19 @@
+version: '3.8'
+
 services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - backend-network
+
   nginx:
     build:
       context: ./nginx
@@ -7,11 +22,9 @@ services:
       - "80:80"
     depends_on:
       - auth-service
-      - identity
       - job-service
       - moderator-service
       - notification-service
-      - user-service
       - application-chat-service
     networks:
       - backend-network
@@ -24,18 +37,17 @@ services:
       - "8080"
       - "8081"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - backend-network
-
-  identity:
-    build:
-      context: .
-      dockerfile: Identity/Dockerfile
-    expose:
-      - "8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${AUTH_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - JWT_TOKEN_LIFETIME=${JWT_TOKEN_LIFETIME}
+    depends_on:
+      - sql-server
     networks:
       - backend-network
 
@@ -43,10 +55,15 @@ services:
     build:
       context: .
       dockerfile: JobService/Dockerfile
-    expose:
-      - "8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${JOB_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
     networks:
       - backend-network
 
@@ -54,10 +71,15 @@ services:
     build:
       context: .
       dockerfile: ModeratorService/Dockerfile
-    expose:
-      - "8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${MODERATOR_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
     networks:
       - backend-network
 
@@ -65,21 +87,15 @@ services:
     build:
       context: .
       dockerfile: NotificationService/Dockerfile
-    expose:
-      - "8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - backend-network
-
-  user-service:
-    build:
-      context: .
-      dockerfile: UserService/Dockerfile
-    expose:
-      - "8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${NOTIFICATION_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
     networks:
       - backend-network
 
@@ -87,13 +103,17 @@ services:
     build:
       context: .
       dockerfile: Application&ChatService/Dockerfile
-    expose:
-      - "8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+    depends_on:
+      - sql-server
     networks:
       - backend-network
 
 networks:
   backend-network:
-    driver: bridge 
+    driver: bridge
+
+volumes:
+  sqldata: 
