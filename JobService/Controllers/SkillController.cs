@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using JobService.Models;
 using JobService.Repositories;
-using JobService.Repositories.SkillsRepository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobService.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class SkillController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -18,19 +18,38 @@ namespace JobService.Controllers
             _skillRepository = skillRepository;
         }
 
-        [HttpGet("Retrieve")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet("retrieve")]
+        public async Task<IActionResult> Get([FromQuery] Guid id)
         {
             var skill = await _skillRepository.Retrieve(id);
-
             return Ok(skill);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Insert(SkillDto skillDto)
+        [HttpGet("retrieve-all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var skills = await _skillRepository.Retrieve();
+            return Ok(skills);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> Create([FromBody] SkillDto skillDto)
         {
             var result = await _skillRepository.Insert(skillDto);
+            return Ok(result);
+        }
 
+        [HttpPost("update")]
+        public async Task<IActionResult> Update([FromBody] SkillDto skillDto)
+        {
+            var result = await _skillRepository.Update(skillDto);
+            return Ok(result);
+        }
+
+        [HttpPost("delete")]
+        public async Task<IActionResult> Delete([FromBody] Guid id)
+        {
+            var result = await _skillRepository.Delete(id);
             return Ok(result);
         }
     }

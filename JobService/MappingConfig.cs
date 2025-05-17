@@ -10,6 +10,8 @@ namespace JobService
             var mappingConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<Skill, SkillDto>().ReverseMap();
+                config.CreateMap<Job, JobDto>().ReverseMap();
+                config.CreateMap<JobRequiredSkill, JobRequiredSkillDto>().ReverseMap();
             });
             return mappingConfig;
         }

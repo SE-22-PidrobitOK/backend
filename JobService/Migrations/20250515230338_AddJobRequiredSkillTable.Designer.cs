@@ -4,6 +4,7 @@ using JobService.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JobService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515230338_AddJobRequiredSkillTable")]
+    partial class AddJobRequiredSkillTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,23 +43,21 @@ namespace JobService.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RequiredExperience")
-                        .HasColumnType("int");
+                    b.Property<string>("RequiredExperience")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Salary")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -75,16 +76,11 @@ namespace JobService.Migrations
                     b.Property<Guid>("SkillId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("SkillId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("JobId");
 
                     b.HasIndex("SkillId");
-
-                    b.HasIndex("SkillId1");
 
                     b.ToTable("JobRequiredSkills");
                 });
@@ -111,7 +107,7 @@ namespace JobService.Migrations
             modelBuilder.Entity("JobService.Models.JobRequiredSkill", b =>
                 {
                     b.HasOne("JobService.Models.Job", "Job")
-                        .WithMany("RequiredSkills")
+                        .WithMany()
                         .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -122,23 +118,9 @@ namespace JobService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JobService.Models.Skill", null)
-                        .WithMany("JobRequiredSkills")
-                        .HasForeignKey("SkillId1");
-
                     b.Navigation("Job");
 
                     b.Navigation("Skill");
-                });
-
-            modelBuilder.Entity("JobService.Models.Job", b =>
-                {
-                    b.Navigation("RequiredSkills");
-                });
-
-            modelBuilder.Entity("JobService.Models.Skill", b =>
-                {
-                    b.Navigation("JobRequiredSkills");
                 });
 #pragma warning restore 612, 618
         }
