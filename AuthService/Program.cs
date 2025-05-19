@@ -8,7 +8,21 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Підключення до БД через EF
+builder.Configuration["Jwt:Secret"] = Environment.GetEnvironmentVariable("JWT_SECRET");
+if (int.TryParse(Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME"), out int tokenLifetime))
+{
+    builder.Configuration["Jwt:TokenLifeTimeInMinutes"] = tokenLifetime.ToString();
+}
+
+// Override database connection
+builder.Configuration["ConnectionStrings:DefaultConnection"] = 
+    $"Server={Environment.GetEnvironmentVariable("SQL_SERVER")};" +
+    $"Database={Environment.GetEnvironmentVariable("AUTH_DATABASE")};" +
+    $"User Id={Environment.GetEnvironmentVariable("SQL_USER")};" +
+    $"Password={Environment.GetEnvironmentVariable("SQL_PASSWORD")};" +
+    "TrustServerCertificate=True";
+
+// 1. EF
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -64,5 +78,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 
 app.Run();
