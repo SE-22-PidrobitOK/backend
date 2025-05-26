@@ -7,48 +7,49 @@ namespace JobService.Repositories.JobsRepository
 {
     public class JobRepository : IJobRepository
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         public JobRepository(ApplicationDbContext db, IMapper mapper)
         {
-            _db = db; _mapper = mapper;
+            _dbContext = db; _mapper = mapper;
         }
 
-        public async Task<JobDto> Retrieve(Guid id)
+        public async Task<Job> Retrieve(Guid id)
         {
-            var job = await _db.Jobs.FirstOrDefaultAsync(x => x.Id == id)
-                      ?? throw new Exception("Job not found");
-            return _mapper.Map<JobDto>(job);
+            return await _dbContext.Jobs.FindAsync(id);
         }
 
-        public async Task<List<JobDto>> Retrieve()
+        public async Task<List<Job>> Retrieve()
         {
-            var jobs = await _db.Jobs.ToListAsync();
-            return _mapper.Map<List<JobDto>>(jobs);
+            return await _dbContext.Jobs.ToListAsync();
         }
 
-        public async Task<bool> Insert(JobDto dto)
+        public async Task<Job> Insert(Job job)
         {
-            var job = _mapper.Map<Job>(dto);
-            job.CreatedAt = DateTime.UtcNow;
-            await _db.Jobs.AddAsync(job);
-            return await _db.SaveChangesAsync() > 0;
+            if (job.Id == Guid.Empty)
+                job.Id = Guid.NewGuid();
+            job.Status = JobStatus.Open;
+            await _dbContext.Jobs.AddAsync(job);
+            await _dbContext.SaveChangesAsync();
+            return job;
         }
 
-        public async Task<bool> Update(JobDto dto)
+        public async Task<Job?> Update(Job job)
         {
-            var job = await _db.Jobs.FirstOrDefaultAsync(x => x.Id == dto.Id);
-            if (job is null) return false;
-            _mapper.Map(dto, job);
-            return await _db.SaveChangesAsync() > 0;
+            var existing = await _dbContext.Jobs.FindAsync(job.Id);
+            if (existing == null) return null;
+
+            _dbContext.Entry(existing).CurrentValues.SetValues(job);
+            await _dbContext.SaveChangesAsync();
+            return existing;
         }
 
         public async Task<bool> Delete(Guid id)
         {
-            var job = await _db.Jobs.FirstOrDefaultAsync(x => x.Id == id);
+            var job = await _dbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
             if (job is null) return false;
-            _db.Jobs.Remove(job);
-            return await _db.SaveChangesAsync() > 0;
+            _dbContext.Jobs.Remove(job);
+            return await _dbContext.SaveChangesAsync() > 0;
         }
     }
 }

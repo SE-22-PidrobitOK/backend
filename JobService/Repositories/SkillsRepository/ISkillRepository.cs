@@ -6,8 +6,9 @@ namespace JobService.Repositories
     {
         public Task<SkillDto> Retrieve(Guid skillId);
         public Task<List<SkillDto>> Retrieve();
-        public Task<bool> Insert(SkillDto skillDto);
-        Task<bool> Update(SkillDto skillDto);       // додано
+        Task<Skill> Insert(Skill skill);
+        Task<Skill?> Update(Skill skill);
         Task<bool> Delete(Guid skillId);
+        Task<bool> ExistsByName(string name);
     }
 }

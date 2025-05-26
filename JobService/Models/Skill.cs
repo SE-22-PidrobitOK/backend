@@ -2,7 +2,7 @@
 {
     public class Skill
     {
-        public Guid SkillId { get; set; }
+        public Guid SkillId { get; set; } = Guid.NewGuid();
         public string Title { get; set; }
         public string Description { get; set; }
 

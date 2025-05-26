@@ -16,11 +16,12 @@ namespace JobService.Repositories.SkillsRepository
             _mapper = mapper;
         }
 
-        public async Task<bool> Insert(SkillDto skillDto)
+        public async Task<Skill> Insert(Skill skill)
         {
-            var skill = _mapper.Map<Skill>(skillDto);
-            await _dbContext.AddAsync(skill);
-            return await _dbContext.SaveChangesAsync() > 0;
+            skill.SkillId = Guid.NewGuid();
+            await _dbContext.Skills.AddAsync(skill);
+            await _dbContext.SaveChangesAsync();
+            return skill;
         }
 
         public async Task<SkillDto> Retrieve(Guid skillId)
@@ -36,13 +37,14 @@ namespace JobService.Repositories.SkillsRepository
             return _mapper.Map<List<SkillDto>>(allSkills);
         }
 
-        public async Task<bool> Update(SkillDto skillDto)
+        public async Task<Skill?> Update(Skill skill)
         {
-            var existing = await _dbContext.Skills.FirstOrDefaultAsync(x => x.SkillId == skillDto.SkillId);
-            if (existing == null) return false;
+            var existing = await _dbContext.Skills.FirstOrDefaultAsync(x => x.SkillId == skill.SkillId);
+            if (existing == null) return null;
 
-            _mapper.Map(skillDto, existing);
-            return await _dbContext.SaveChangesAsync() > 0;
+            _mapper.Map(skill, existing);
+            await _dbContext.SaveChangesAsync();
+            return existing;
         }
 
         public async Task<bool> Delete(Guid skillId)
@@ -52,6 +54,11 @@ namespace JobService.Repositories.SkillsRepository
 
             _dbContext.Skills.Remove(existing);
             return await _dbContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> ExistsByName(string name)
+        {
+            return await _dbContext.Skills.AnyAsync(s => s.Title.ToLower() == name.ToLower());
         }
     }
 }

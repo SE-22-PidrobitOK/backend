@@ -4,10 +4,10 @@ namespace JobService.Repositories.JobsRepository
 {
     public interface IJobRepository
     {
-        Task<JobDto> Retrieve(Guid id);
-        Task<List<JobDto>> Retrieve();
-        Task<bool> Insert(JobDto jobDto);
-        Task<bool> Update(JobDto jobDto);
+        Task<Job?> Retrieve(Guid id);
+        Task<List<Job>> Retrieve();
+        Task<Job> Insert(Job job);
+        Task<Job?> Update(Job job);
         Task<bool> Delete(Guid id);
     }
 }
