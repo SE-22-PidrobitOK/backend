@@ -11,16 +11,16 @@ namespace JobService
             var mappingConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<Skill, SkillDto>().ReverseMap();
-                config.CreateMap<CreateSkillDto, Skill>();
-                config.CreateMap<UpdateSkillDto, Skill>();
+                config.CreateMap<CreateSkillDto, SkillDto>();
+                config.CreateMap<UpdateSkillDto, SkillDto>();
                 config.CreateMap<Skill, Skill>().ForMember(dest => dest.SkillId, opt => opt.Ignore());
                 config.CreateMap<Job, JobDto>().ReverseMap();
-                config.CreateMap<CreateJobDto, Job>();
-                config.CreateMap<UpdateJobDto, Job>();
+                config.CreateMap<CreateJobDto, JobDto>();
+                config.CreateMap<UpdateJobDto, JobDto>();
                 config.CreateMap<Job, Job>().ForMember(dest => dest.Id, opt => opt.Ignore());
                 config.CreateMap<JobRequiredSkill, JobRequiredSkillDto>().ReverseMap();
-                config.CreateMap<CreateJobRequiredSkillDto, JobRequiredSkill>();
-                config.CreateMap<UpdateJobRequiredSkillDto, JobRequiredSkill>();
+                config.CreateMap<CreateJobRequiredSkillDto, JobRequiredSkillDto>();
+                config.CreateMap<UpdateJobRequiredSkillDto, JobRequiredSkillDto>();
                 config.CreateMap<JobRequiredSkill, JobRequiredSkill>().ForMember(dest => dest.Id, opt => opt.Ignore());
             });
             return mappingConfig;

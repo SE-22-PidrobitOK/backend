@@ -1,11 +1,15 @@
-﻿namespace JobService.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace JobService.Models
 {
     public enum JobType { PartTime = 0, FullTime = 1, Internship = 2 }
     public enum JobStatus { Open = 0, Closed = 1 }
 
     public class Job
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
+        public Guid Id { get; set; }
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public string? Location { get; set; }

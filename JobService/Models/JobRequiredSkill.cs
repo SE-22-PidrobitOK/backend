@@ -1,8 +1,11 @@
-﻿namespace JobService.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace JobService.Models
 {
     public class JobRequiredSkill
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid Id { get; set; }
 
         public Guid JobId { get; set; }
         public Job? Job { get; set; }

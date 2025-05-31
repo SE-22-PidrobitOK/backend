@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using JobService.Models;
 using JobService.Repositories;
-using JobService.Repositories.SkillsRepository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobService.Controllers
@@ -42,18 +41,20 @@ namespace JobService.Controllers
             if (exists)
                 return Conflict("Skill with this name already exists.");
 
-            var skill = _mapper.Map<Skill>(dto);
+            var skill = _mapper.Map<SkillDto>(dto);
             var created = await _skillRepository.Insert(skill);
-            return Ok(_mapper.Map<SkillDto>(created));
+            
+            return Ok(created);
         }
 
         [HttpPost("update")]
         public async Task<IActionResult> Update([FromBody] UpdateSkillDto dto)
         {
-            var skill = _mapper.Map<Skill>(dto);
+            var skill = _mapper.Map<SkillDto>(dto);
             var updated = await _skillRepository.Update(skill);
             if (updated == null) return NotFound();
-            return Ok(_mapper.Map<SkillDto>(updated));
+            
+            return Ok(updated);
         }
 
         [HttpPost("delete")]

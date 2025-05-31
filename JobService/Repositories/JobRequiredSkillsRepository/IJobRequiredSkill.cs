@@ -5,7 +5,7 @@ namespace JobService.Repositories.JobRequiredSkillsRepository
     public interface IJobRequiredSkillRepository
     {
         Task<List<JobRequiredSkillDto>> Retrieve();
-        Task<JobRequiredSkill> Insert(JobRequiredSkill entity);
+        Task<JobRequiredSkillDto> Insert(JobRequiredSkillDto entity);
         Task<bool> Delete(Guid id);
         Task<List<SkillDto>> GetSkillsByJobId(Guid jobId);
         Task<List<JobDto>> GetJobsBySkillId(Guid skillId);

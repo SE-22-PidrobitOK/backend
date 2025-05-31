@@ -45,14 +45,13 @@ namespace JobService.Controllers
                 return Conflict("This job already requires this skill.");
 
 
-            var entity = _mapper.Map<JobRequiredSkill>(dto);
+            var entity = _mapper.Map<JobRequiredSkillDto>(dto);
             var created = await _repo.Insert(entity);
-            return Ok(_mapper.Map<JobRequiredSkillDto>(created));
+            return Ok(created);
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> Delete([FromBody] Guid id) =>
-            Ok(await _repo.Delete(id));
+        public async Task<IActionResult> Delete([FromBody] Guid id) => Ok(await _repo.Delete(id));
 
 
         // GET /api/job-required-skill/skills-by-job?jobId=...

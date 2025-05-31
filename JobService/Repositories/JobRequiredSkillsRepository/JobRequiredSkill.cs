@@ -12,7 +12,8 @@ namespace JobService.Repositories.JobRequiredSkillsRepository
 
         public JobRequiredSkillRepository(ApplicationDbContext db, IMapper mapper)
         {
-            _dbContext = db; _mapper = mapper;
+            _dbContext = db; 
+            _mapper = mapper;
         }
 
         public async Task<List<JobRequiredSkillDto>> Retrieve()
@@ -21,11 +22,13 @@ namespace JobService.Repositories.JobRequiredSkillsRepository
             return _mapper.Map<List<JobRequiredSkillDto>>(list);
         }
 
-        public async Task<JobRequiredSkill?> Insert(JobRequiredSkill entity)
+        public async Task<JobRequiredSkillDto> Insert(JobRequiredSkillDto entity)
         {
-            entity.Id = Guid.NewGuid();
-            await _dbContext.JobRequiredSkills.AddAsync(entity);
+            var jobRequredSkill = _mapper.Map<JobRequiredSkill>(entity);
+            await _dbContext.JobRequiredSkills.AddAsync(jobRequredSkill);
             await _dbContext.SaveChangesAsync();
+
+            entity.Id = jobRequredSkill.Id;
             return entity;
         }
 

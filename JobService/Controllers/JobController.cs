@@ -34,8 +34,8 @@ namespace JobService.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateJobDto dto)
         {
-            var job = _mapper.Map<Job>(dto);
-            var created = await _repo.Insert(job);
+            var jobDto = _mapper.Map<JobDto>(dto);
+            var created = await _repo.Insert(jobDto);
             return Ok(_mapper.Map<JobDto>(created));
         }
 
@@ -43,8 +43,8 @@ namespace JobService.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> Update([FromBody] UpdateJobDto dto)
         {
-            var job = _mapper.Map<Job>(dto);
-            var updated = await _repo.Update(job);
+            var jobDto = _mapper.Map<JobDto>(dto);
+            var updated = await _repo.Update(jobDto);
             if (updated == null)
             {
                 return NotFound();

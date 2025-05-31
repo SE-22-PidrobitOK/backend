@@ -10,6 +10,6 @@
         public JobType Type { get; set; }
         public Guid EmployerId { get; set; }
         public JobStatus Status { get; set; }
-        public string? RequiredExperience { get; set; }
+        public int RequiredExperience { get; set; }
     }
 }

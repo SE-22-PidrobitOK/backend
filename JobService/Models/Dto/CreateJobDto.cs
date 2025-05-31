@@ -8,6 +8,6 @@
         public decimal? Salary { get; set; }
         public JobType Type { get; set; }
         public Guid EmployerId { get; set; }
-        public string? RequiredExperience { get; set; }
+        public int RequiredExperience { get; set; }
     }
 }

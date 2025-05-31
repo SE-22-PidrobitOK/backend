@@ -14,34 +14,44 @@ namespace JobService.Repositories.JobsRepository
             _dbContext = db; _mapper = mapper;
         }
 
-        public async Task<Job> Retrieve(Guid id)
+        public async Task<JobDto> Retrieve(Guid id)
         {
-            return await _dbContext.Jobs.FindAsync(id);
+            var job = await _dbContext.Jobs.FindAsync(id);
+            return _mapper.Map<JobDto>(job);
         }
 
-        public async Task<List<Job>> Retrieve()
+        public async Task<List<JobDto>> Retrieve()
         {
-            return await _dbContext.Jobs.ToListAsync();
+            var jobs = await _dbContext.Jobs.ToListAsync();
+            return _mapper.Map<List<JobDto>>(jobs);
         }
 
-        public async Task<Job> Insert(Job job)
+        public async Task<JobDto> Insert(JobDto jobDto)
         {
-            if (job.Id == Guid.Empty)
-                job.Id = Guid.NewGuid();
-            job.Status = JobStatus.Open;
+            jobDto.Status = JobStatus.Open;
+            var job = _mapper.Map<Job>(jobDto);
+            
             await _dbContext.Jobs.AddAsync(job);
             await _dbContext.SaveChangesAsync();
-            return job;
+
+            jobDto.Id = job.Id;
+            return jobDto;
         }
 
-        public async Task<Job?> Update(Job job)
+        public async Task<JobDto> Update(JobDto jobDto)
         {
-            var existing = await _dbContext.Jobs.FindAsync(job.Id);
-            if (existing == null) return null;
+            var existing = await _dbContext.Jobs.FindAsync(jobDto.Id);
+            
+            if (existing == null)
+            {
+                return null;
+            }
 
-            _dbContext.Entry(existing).CurrentValues.SetValues(job);
+            var job = _mapper.Map<Job>(jobDto);
+
+            _dbContext.Entry(existing).CurrentValues.SetValues(jobDto);
             await _dbContext.SaveChangesAsync();
-            return existing;
+            return jobDto;
         }
 
         public async Task<bool> Delete(Guid id)
