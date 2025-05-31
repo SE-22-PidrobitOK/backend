@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - backend-network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - job-service
+      - moderator-service
+      - notification-service
+      - application-chat-service
+    networks:
+      - backend-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    expose:
+      - "8080"
+      - "8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${AUTH_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_TOKEN_LIFETIME=${JWT_TOKEN_LIFETIME}
+    depends_on:
+      - sql-server
+    networks:
+      - backend-network
+
+  job-service:
+    build:
+      context: .
+      dockerfile: JobService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${JOB_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
+    networks:
+      - backend-network
+
+  moderator-service:
+    build:
+      context: .
+      dockerfile: ModeratorService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${MODERATOR_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
+    networks:
+      - backend-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${NOTIFICATION_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    depends_on:
+      - sql-server
+    networks:
+      - backend-network
+
+  application-chat-service:
+    build:
+      context: .
+      dockerfile: Application&ChatService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      
+    depends_on:
+      - sql-server
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  sqldata: 
