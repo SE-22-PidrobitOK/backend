@@ -12,6 +12,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Override database connection
+builder.Configuration["ConnectionStrings:DefaultConnection"] =
+    $"Server={Environment.GetEnvironmentVariable("SQL_SERVER")};" +
+    $"Database={Environment.GetEnvironmentVariable("AUTH_DATABASE")};" +
+    $"User Id={Environment.GetEnvironmentVariable("SQL_USER")};" +
+    $"Password={Environment.GetEnvironmentVariable("SQL_PASSWORD")};" +
+    "TrustServerCertificate=True";
+
+// 1. EF
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
