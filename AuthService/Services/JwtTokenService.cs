@@ -7,17 +7,14 @@ using System.Text;
 
 public class JwtTokenService
 {
-    private readonly IConfiguration _configuration;
-
-    public JwtTokenService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
+    private readonly string _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+    private readonly string _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+    private readonly string _secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+    private readonly int _tokenLifetime = int.Parse(Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME"));
 
     public string GenerateAccessToken(PidrobitokUser user)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -27,12 +24,11 @@ public class JwtTokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        var tokenLifeTimeInMinutes = int.Parse(jwtSettings["TokenLifeTimeInMinutes"]);
-        var expires = DateTime.UtcNow.AddMinutes(tokenLifeTimeInMinutes);
+        var expires = DateTime.UtcNow.AddMinutes(_tokenLifetime);
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: _issuer,
+            audience: _audience,
             claims: claims,
             expires: expires,
             signingCredentials: creds
@@ -48,15 +44,14 @@ public class JwtTokenService
 
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = true,
             ValidateIssuer = true,
-            ValidAudience = jwtSettings["Audience"],
-            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = _audience,
+            ValidIssuer = _issuer,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret)),
             ValidateLifetime = false
         };
 
