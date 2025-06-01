@@ -5,26 +5,35 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration["Jwt:Secret"] = Environment.GetEnvironmentVariable("JWT_SECRET");
-if (int.TryParse(Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME"), out int tokenLifetime))
+var ownEnvironment = builder.Environment.EnvironmentName;
+var connectionString = string.Empty;
+
+if(builder.Environment.IsDevelopment())
 {
-    builder.Configuration["Jwt:TokenLifeTimeInMinutes"] = tokenLifetime.ToString();
+    var envPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env");
+    Env.Load(envPath);
+
+    connectionString = $"Data Source=ARTEXXX;Database={Environment.GetEnvironmentVariable("AUTH_DATABASE")};Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
 }
 
-// Override database connection
-builder.Configuration["ConnectionStrings:DefaultConnection"] = 
-    $"Server={Environment.GetEnvironmentVariable("SQL_SERVER")};" +
+
+else if(ownEnvironment == "DockerDevelopment")
+{
+    connectionString = $"Server={Environment.GetEnvironmentVariable("SQL_SERVER")};" +
     $"Database={Environment.GetEnvironmentVariable("AUTH_DATABASE")};" +
     $"User Id={Environment.GetEnvironmentVariable("SQL_USER")};" +
     $"Password={Environment.GetEnvironmentVariable("SQL_PASSWORD")};" +
     "TrustServerCertificate=True";
+}
 
+// Override database connection
 // 1. EF
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // 2. Identity + User
 builder.Services.AddIdentity<PidrobitokUser, IdentityRole<Guid>>(options =>
@@ -36,8 +45,12 @@ builder.Services.AddIdentity<PidrobitokUser, IdentityRole<Guid>>(options =>
 .AddDefaultTokenProviders();
 
 // 3. JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+
+var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+var tokenLifetime = int.Parse(Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME"));
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -52,9 +65,9 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
     };
 });
 
@@ -66,11 +79,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+}*/
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
