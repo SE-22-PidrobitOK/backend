@@ -246,5 +246,74 @@ namespace JobServiceTests.Controllers
             await act.Should().ThrowAsync<Exception>().WithMessage("Job lookup failed");
         }
 
+
+
+        [Fact]
+        public async Task Create_ReturnsOkWithNull_WhenInsertReturnsNull()
+        {
+            var dto = new CreateJobRequiredSkillDto { JobId = Guid.NewGuid(), SkillId = Guid.NewGuid() };
+            var mapped = new JobRequiredSkillDto { JobId = dto.JobId, SkillId = dto.SkillId };
+
+            _jobRepoMock.Setup(r => r.Retrieve(dto.JobId)).ReturnsAsync(new JobDto());
+            _skillRepoMock.Setup(r => r.Retrieve(dto.SkillId)).ReturnsAsync(new SkillDto());
+            _repoMock.Setup(r => r.Exists(dto.JobId, dto.SkillId)).ReturnsAsync(false);
+            _mapperMock.Setup(m => m.Map<JobRequiredSkillDto>(dto)).Returns(mapped);
+            _repoMock.Setup(r => r.Insert(mapped)).ReturnsAsync((JobRequiredSkillDto?)null);
+
+            var result = await _controller.Create(dto);
+
+            var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+            ok.Value.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsTrueThenFalse_WhenCalledTwice()
+        {
+            var id = Guid.NewGuid();
+
+            _repoMock.SetupSequence(r => r.Delete(id))
+                .ReturnsAsync(true)
+                .ReturnsAsync(false);
+
+            var result1 = await _controller.Delete(id);
+            var result2 = await _controller.Delete(id);
+
+            var ok1 = result1.Should().BeOfType<OkObjectResult>().Subject;
+            var ok2 = result2.Should().BeOfType<OkObjectResult>().Subject;
+
+            ok1.Value.Should().BeOfType<bool>().Which.Should().BeTrue();
+            ok2.Value.Should().BeOfType<bool>().Which.Should().BeFalse();
+        }
+
+
+        [Fact]
+        public async Task GetAll_ReturnsNull_WhenRepoReturnsNull()
+        {
+            _repoMock.Setup(r => r.Retrieve()).ReturnsAsync((List<JobRequiredSkillDto>?)null);
+
+            var result = await _controller.GetAll();
+
+            var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+            ok.Value.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task Create_CallsInsertExactlyOnce()
+        {
+            var dto = new CreateJobRequiredSkillDto { JobId = Guid.NewGuid(), SkillId = Guid.NewGuid() };
+            var mapped = new JobRequiredSkillDto { Id = Guid.NewGuid(), JobId = dto.JobId, SkillId = dto.SkillId };
+
+            _jobRepoMock.Setup(r => r.Retrieve(dto.JobId)).ReturnsAsync(new JobDto());
+            _skillRepoMock.Setup(r => r.Retrieve(dto.SkillId)).ReturnsAsync(new SkillDto());
+            _repoMock.Setup(r => r.Exists(dto.JobId, dto.SkillId)).ReturnsAsync(false);
+            _mapperMock.Setup(m => m.Map<JobRequiredSkillDto>(dto)).Returns(mapped);
+            _repoMock.Setup(r => r.Insert(mapped)).ReturnsAsync(mapped);
+
+            await _controller.Create(dto);
+
+            _repoMock.Verify(r => r.Insert(It.IsAny<JobRequiredSkillDto>()), Times.Once);
+        }
+
+
     }
 }

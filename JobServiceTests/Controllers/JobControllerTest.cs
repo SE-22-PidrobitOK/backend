@@ -193,5 +193,86 @@ namespace JobServiceTests.Controllers
         }
 
 
+
+
+        [Fact]
+        public async Task Create_Throws_WhenMapperFails()
+        {
+            var dto = TestDataGenerator.GenerateCreateJobDto();
+
+            _mapperMock.Setup(m => m.Map<JobDto>(dto)).Throws(new Exception("Mapping failed"));
+
+            Func<Task> act = async () => await _controller.Create(dto);
+
+            await act.Should().ThrowAsync<Exception>().WithMessage("Mapping failed");
+        }
+
+        [Fact]
+        public async Task Get_ReturnsOkWithNull_WhenJobNotFound()
+        {
+            var id = Guid.NewGuid();
+
+            _repoMock.Setup(r => r.Retrieve(id)).ReturnsAsync((JobDto?)null);
+
+            var result = await _controller.Get(id);
+
+            var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+            ok.Value.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task Update_CallsUpdateExactlyOnce()
+        {
+            var dto = TestDataGenerator.GenerateUpdateJobDto(Guid.NewGuid());
+            var jobDto = new JobDto { Id = dto.Id, Title = dto.Title };
+
+            _mapperMock.Setup(m => m.Map<JobDto>(dto)).Returns(jobDto);
+            _repoMock.Setup(r => r.Update(jobDto)).ReturnsAsync(jobDto);
+            _mapperMock.Setup(m => m.Map<JobDto>(jobDto)).Returns(jobDto);
+
+            await _controller.Update(dto);
+
+            _repoMock.Verify(r => r.Update(It.IsAny<JobDto>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAll_Throws_WhenRepositoryFails()
+        {
+            _repoMock.Setup(r => r.Retrieve()).ThrowsAsync(new Exception("Something broke"));
+
+            Func<Task> act = async () => await _controller.GetAll();
+
+            await act.Should().ThrowAsync<Exception>().WithMessage("Something broke");
+        }
+
+        [Fact]
+        public async Task Delete_Throws_WhenRepositoryFails()
+        {
+            var id = Guid.NewGuid();
+            _repoMock.Setup(r => r.Delete(id)).ThrowsAsync(new Exception("DB error"));
+
+            Func<Task> act = async () => await _controller.Delete(id);
+
+            await act.Should().ThrowAsync<Exception>().WithMessage("DB error");
+        }
+
+        [Fact]
+        public async Task Create_ReturnsOkWithNull_WhenInsertFails()
+        {
+            var dto = TestDataGenerator.GenerateCreateJobDto();
+            var jobDto = new JobDto { Id = Guid.NewGuid(), Title = dto.Title };
+
+            _mapperMock.Setup(m => m.Map<JobDto>(dto)).Returns(jobDto);
+            _repoMock.Setup(r => r.Insert(jobDto)).ReturnsAsync((JobDto?)null);
+
+            var result = await _controller.Create(dto);
+
+            var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+            ok.Value.Should().BeNull();
+        }
+
+
+
+
     }
 }
