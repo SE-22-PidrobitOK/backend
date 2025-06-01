@@ -43,6 +43,8 @@ services:
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
       - JWT_TOKEN_LIFETIME=${JWT_TOKEN_LIFETIME}
     depends_on:
       - sql-server
@@ -55,13 +57,16 @@ services:
       dockerfile: JobService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      
       - SQL_SERVER=${SQL_SERVER}
       - SQL_DATABASE=${JOB_DATABASE}
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
     depends_on:
       - sql-server
+      - auth-service
     networks:
       - backend-network
 
@@ -71,13 +76,16 @@ services:
       dockerfile: ModeratorService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      
       - SQL_SERVER=${SQL_SERVER}
       - SQL_DATABASE=${MODERATOR_DATABASE}
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
     depends_on:
       - sql-server
+      - auth-service
     networks:
       - backend-network
 
@@ -87,13 +95,16 @@ services:
       dockerfile: NotificationService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      
       - SQL_SERVER=${SQL_SERVER}
       - SQL_DATABASE=${NOTIFICATION_DATABASE}
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
     depends_on:
       - sql-server
+      - auth-service
     networks:
       - backend-network
 
@@ -103,9 +114,16 @@ services:
       dockerfile: Application&ChatService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${AUTH_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
     depends_on:
       - sql-server
+      - auth-service
     networks:
       - backend-network
 
@@ -114,4 +132,4 @@ networks:
     driver: bridge
 
 volumes:
-  sqldata: 
+  sqldata:
