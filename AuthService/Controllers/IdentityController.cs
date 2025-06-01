@@ -68,7 +68,7 @@ namespace AuthService.Controllers
             var user = await _userManager.FindByEmailAsync(login.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, login.Password))
             {
-                return Unauthorized("Invalid credentials");
+                return BadRequest("Invalid credentials");
             }
 
             var accessToken = _jwtTokenService.GenerateAccessToken(user);

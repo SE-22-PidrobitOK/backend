@@ -2,6 +2,7 @@
 using JobService.Models;
 using JobService.Models.Dto;
 using JobService.Repositories.JobsRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobService.Controllers
@@ -21,6 +22,7 @@ namespace JobService.Controllers
         }
 
         // GET api/job/retrieve?id=...
+        [Authorize]
         [HttpGet("retrieve")]
         public async Task<IActionResult> Get([FromQuery] Guid id) =>
             Ok(await _repo.Retrieve(id));
@@ -31,6 +33,8 @@ namespace JobService.Controllers
             Ok(await _repo.Retrieve());
 
         // POST api/job/create
+        [Authorize(Roles = "Employer")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateJobDto dto)
         {
