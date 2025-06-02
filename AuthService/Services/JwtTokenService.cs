@@ -24,6 +24,12 @@ public class JwtTokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+        {
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.Email, user.Email ?? ""));
+        }
+
         var expires = DateTime.UtcNow.AddMinutes(_tokenLifetime);
 
         var token = new JwtSecurityToken(

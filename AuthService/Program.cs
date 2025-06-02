@@ -46,10 +46,12 @@ builder.Services.AddIdentity<PidrobitokUser, IdentityRole<Guid>>(options =>
 
 // 3. JWT Authentication
 
-var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
-var tokenLifetime = int.Parse(Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME"));
+var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "test-issuer";
+var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "test-audience";
+var secret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "supersecretkeysupersecretkey123!";
+var tokenLifetimeString = Environment.GetEnvironmentVariable("JWT_TOKEN_LIFETIME") ?? "60";
+var tokenLifetime = int.Parse(tokenLifetimeString);
+
 
 
 builder.Services.AddAuthentication(options =>
@@ -95,11 +97,23 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+
+    var databaseProvider = dbContext.Database.ProviderName;
+    if (databaseProvider != null && databaseProvider.Contains("SqlServer", StringComparison.OrdinalIgnoreCase))
+    {
+        dbContext.Database.Migrate();
+    }
 }
 
 
+
+
+
+
 app.Run();
+
+public partial class Program { }
