@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application&ChatService", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{EF5BEBC6-D9E5-43FD-AD1C-59DC016AE296}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModeratorService", "ModeratorService\ModeratorService.csproj", "{E56310C7-9BCF-4123-BA34-FBFB865EBE7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PidrobitOK.ModeratorService", "PidrobitOK.Moderator\PidrobitOK.ModeratorService\PidrobitOK.ModeratorService.csproj", "{663F8E60-FC1F-5684-983D-732AAD982CD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{EF5BEBC6-D9E5-43FD-AD1C-59DC016AE296}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF5BEBC6-D9E5-43FD-AD1C-59DC016AE296}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF5BEBC6-D9E5-43FD-AD1C-59DC016AE296}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E56310C7-9BCF-4123-BA34-FBFB865EBE7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E56310C7-9BCF-4123-BA34-FBFB865EBE7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E56310C7-9BCF-4123-BA34-FBFB865EBE7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E56310C7-9BCF-4123-BA34-FBFB865EBE7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{663F8E60-FC1F-5684-983D-732AAD982CD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{663F8E60-FC1F-5684-983D-732AAD982CD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{663F8E60-FC1F-5684-983D-732AAD982CD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{663F8E60-FC1F-5684-983D-732AAD982CD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
